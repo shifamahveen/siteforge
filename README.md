@@ -66,6 +66,3 @@ CREATE TABLE pages (
 ```sh
 node app.js
 ```
-
-
-convert this to an app called "SignSense: AI Hand Gesture-Based Language Interpreter", and keep table only of users table
