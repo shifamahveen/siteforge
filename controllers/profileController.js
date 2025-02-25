@@ -1,20 +1,19 @@
 const userModel = require('../models/userModel');
 
-exports.getProfile = (req, res) => {
-  
-  const userId = req.session.user.id;
-
-  // Check if userId is present in the session
-  if (!userId) {
+exports.getProfile = (req, res) => {  
+  if (!req.session.user) {
     return res.redirect('/login'); 
   }
 
-  userModel.findUserById(userId, (err, results) => {
-    if (err || results.length === 0) {
+  userModel.findUserById(req.session.user.id, (err, user) => {
+    if (err) {
+      return res.redirect('/login'); 
+    }
+    
+    if (!user) {
       return res.redirect('/login');
     }
 
-    const user = results[0];
     res.render('profile', { user });
   });
 };

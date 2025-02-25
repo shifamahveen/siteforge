@@ -20,15 +20,18 @@ exports.findUserByEmail = (email, callback) => {
 
 exports.findUserById = async (id, callback) => {
   const query = 'SELECT id, name, email, phone, role, gender, location FROM users WHERE id = ?';
-  console.log("Id user: ", id);
   
   try {
-    const [results, fields] = await db.query(query, [id]);
-    callback(null, results);
+    const [results] = await db.query(query, [id]); 
+    if (results.length === 0) {
+      return callback(null, null);
+    }
+    callback(null, results[0]); 
   } catch (err) {
     callback(err, null); 
   }
 };
+
 
 exports.getAllUsers = async (callback) => {
   const query = 'SELECT * FROM users';

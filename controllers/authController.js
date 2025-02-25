@@ -35,7 +35,7 @@ exports.registerUser = async (req, res) => {
       });
     });
 
-    res.redirect('/');
+    res.redirect('/list/');
   } catch (err) {
     res.redirect('/register?error=Registration failed');
   }
@@ -66,7 +66,7 @@ exports.loginUser = (req, res) => {
       if (err) {
         return res.redirect('/login?error=Session not saved');
       }
-      res.redirect('/');
+      res.redirect('/list/');
     });
   });
 };
