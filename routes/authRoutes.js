@@ -23,4 +23,8 @@ router.get('/profile', ensureAuthenticated, profileController.getProfile);
 
 router.get('/admin', ensureAuthenticated, adminController.adminPage);
 
+router.get('/forgot', authController.getForgotPage);
+router.post('/forgot', authController.verifyEmail);
+router.post('/reset-password', authController.resetPassword);
+
 module.exports = router;

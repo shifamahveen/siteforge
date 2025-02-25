@@ -23,10 +23,11 @@
 
     <div class="max-w-screen-xl p-4 sm:px-16 mx-auto mt-10 mb-20">
         <h1 class="text-2xl font-semibold my-8">AI Web Page Generator</h1>
-        <form action="/ai/page" method="POST" class="p-4 bg-white shadow-md rounded">
+        <form action="/ai/page" method="POST" class="p-4 bg-white shadow-md px-8 rounded">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 
-            <textarea name="prompt" rows="4" class="resize-none p-2 border rounded border border-gray-200 focus: border-gray-200 m-4 w-[97%]" placeholder="Enter your prompt..."></textarea>
+            <textarea name="prompt" rows="4" class="resize-none p-2 border rounded border border-gray-200 focus: border-gray-200 my-4 w-[97%]" placeholder="Enter your prompt..."></textarea>
+            <p class="text-gray-400 text-sm">Enter prompt like "Create a landing page website for a college called 'Avanthi Institute'. Design it in CSS."</p>
             <button type="submit" class="w-full p-2 mt-2 bg-blue-500 text-white rounded">Generate Site</button>
         </form>
     </div>

@@ -76,3 +76,31 @@ exports.logout = (req, res) => {
     res.redirect('/login');
   });
 };
+
+exports.getForgotPage = (req, res) => {
+  res.render('forgot', { csrfToken: req.csrfToken(), email: null, error: null });
+};
+
+exports.verifyEmail = async (req, res) => {
+  const { email } = req.body;
+
+  userModel.getUserByEmail(email, (err, user) => {
+    if (err || !user) {
+      return res.render('forgot', { csrfToken: req.csrfToken(), email: null, error: 'Account does not exist' });
+    }
+
+    res.render('forgot', { csrfToken: req.csrfToken(), email, error: null });
+  });
+};
+
+exports.resetPassword = async (req, res) => {
+  const { email, password } = req.body;
+  const hashedPassword = bcrypt.hashSync(password, 10);
+
+  try {
+    await userModel.updatePassword(email, hashedPassword);
+    res.redirect('/login');
+  } catch (err) {
+    res.render('forgot', { csrfToken: req.csrfToken(), email: null, error: 'Password reset failed' });
+  }
+};

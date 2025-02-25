@@ -20,14 +20,16 @@ builderArea.addEventListener('drop', async (e) => {
     if (type === 'ul' || type === 'ol') {
         // Create list with a single "List Item"
         newElement = document.createElement(type);
-        const listItem = document.createElement('li');
-        listItem.contentEditable = true;
-        listItem.textContent = 'List Item'; // Default text
-        newElement.appendChild(listItem);
+        for (let i = 0; i < 3; i++) {
+            const listItem = document.createElement('li');
+            listItem.contentEditable = true;
+            listItem.textContent = `Item ${i + 1}`; // Default text
+            newElement.appendChild(listItem);
+        }
 
         newElement.className = 'rounded';
         newElement.style.padding = '8px';
-        newElement.style.border = '1px solid #000';
+        newElement.style.listStyleType = type === 'ul' ? 'disc' : 'decimal';
         
         newElement.addEventListener('click', () => selectElement(newElement));
         builderArea.appendChild(newElement);
@@ -51,6 +53,36 @@ builderArea.addEventListener('drop', async (e) => {
         return;
     } 
     
+    else if (type === 'select') {
+        newElement = document.createElement('select');
+        const options = prompt('Enter dropdown options separated by commas:', 'Option 1, Option 2, Option 3');
+        if (options) {
+            options.split(',').forEach(opt => {
+                const option = document.createElement('option');
+                option.value = opt.trim();
+                option.textContent = opt.trim();
+                newElement.appendChild(option);
+            });
+        }
+        newElement.style.padding = '6px';
+        newElement.style.border = '1px solid #000';
+        newElement.style.borderRadius = '4px';
+        newElement.addEventListener('click', () => editSelectOptions(newElement));
+        builderArea.appendChild(newElement);
+    }
+    
+    else if (type === 'textarea') {
+        newElement = document.createElement('textarea');
+        newElement.placeholder = 'Enter text here...';
+        newElement.style.width = '100%';
+        newElement.style.height = '100px';
+        newElement.style.padding = '6px';
+        newElement.style.border = '1px solid #000';
+        newElement.style.borderRadius = '4px';
+        newElement.addEventListener('click', () => selectElement(newElement));
+        builderArea.appendChild(newElement);
+    }
+    
     else {
         // Default element creation
         newElement = document.createElement(type);
@@ -60,14 +92,12 @@ builderArea.addEventListener('drop', async (e) => {
         else if (type === 'a') {
             newElement.textContent = 'Anchor';
             newElement.href = '#';
-        } else if (type === 'input') {
-            newElement.placeholder = 'Input Field';
         } else {
             newElement.textContent = type.charAt(0).toUpperCase() + type.slice(1);
         }
     }
 
-    newElement.contentEditable = type !== 'input' && type !== 'form' && type !== 'ul' && type !== 'ol';
+    newElement.contentEditable = type !== 'input' && type !== 'form' && type !== 'ul' && type !== 'ol' && type !== 'select' && type !== 'textarea';
     newElement.className = `${type} rounded`;
     newElement.style.border = '1px solid #000';
     newElement.style.padding = '8px';
@@ -75,6 +105,21 @@ builderArea.addEventListener('drop', async (e) => {
 
     builderArea.appendChild(newElement);
 });
+
+function editSelectOptions(selectElement) {
+    const options = Array.from(selectElement.options).map(opt => opt.textContent).join(', ');
+    const newOptions = prompt('Edit dropdown options separated by commas:', options);
+    if (newOptions) {
+        selectElement.innerHTML = '';
+        newOptions.split(',').forEach(opt => {
+            const option = document.createElement('option');
+            option.value = opt.trim();
+            option.textContent = opt.trim();
+            selectElement.appendChild(option);
+        });
+    }
+}
+
 
 // Select element to apply styles
 function selectElement(el) {

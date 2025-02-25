@@ -7,10 +7,10 @@
     <meta name="csrf-token" content="<%= csrfToken %>">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-100" style="background-image: url('https://static.vecteezy.com/system/resources/previews/004/242/510/non_2x/abstract-wave-trendy-geometric-abstract-background-with-white-and-blue-gradient-vector.jpg'); background-size: cover; background-repeat: no-repeat;">
     
   <!-- Navbar -->
-  <nav class="bg-gray-600 p-4 shadow-md">
+  <nav class="bg-blue-900 p-4 shadow-md">
     <div class="max-w-screen-xl px-16 mx-auto flex justify-between items-center">
       <h1 class="text-white text-2xl font-semibold"><a href="/" class="text-white">SiteForge</a></h1>
       <div class="flex space-x-4">
@@ -25,75 +25,60 @@
     </div>
   </nav>
 
-    <div class="max-w-screen-xl p-4 sm:px-16 mx-auto mt-10 mb-20">
-        
-        <div class="flex gap-6">
-            <div class="w-1/4 bg-white p-4 rounded-lg shadow-md">
-                <h3 class="text-lg font-semibold mb-3">HTML Elements</h3>
-                <div draggable="true" class="element p-2 bg-gray-200 rounded cursor-move mb-2" data-type="h1">Heading</div>
-                <div draggable="true" class="element p-2 bg-gray-200 rounded cursor-move mb-2" data-type="p">Paragraph</div>
-                <div draggable="true" class="element p-2 bg-gray-200 rounded cursor-move mb-2" data-type="button">Button</div>
-                <div draggable="true" class="element p-2 bg-gray-200 rounded cursor-move mb-2" data-type="div">Div</div>
-                <div draggable="true" class="element p-2 bg-gray-200 rounded cursor-move mb-2" data-type="section">Section</div>
-                <div draggable="true" class="element p-2 bg-gray-200 rounded cursor-move mb-2" data-type="ul">Unordered List</div>
-                <div draggable="true" class="element p-2 bg-gray-200 rounded cursor-move mb-2" data-type="input">Input Field</div>
-            </div>
-            
-            <div class="w-3/4 bg-white p-6 rounded-lg shadow-md min-h-[500px]" id="builderArea">
-                <h3 class="text-lg font-semibold text-center text-gray-500">Drag elements here</h3>
+  <div class="max-w-screen-xl mx-auto mt-10 mb-20 px-16 p-6">
+    <div class="grid grid-cols-4 gap-6">
+        <!-- Sidebar Elements -->
+        <div class="col-span-1 bg-white p-5 rounded-xl shadow-lg">
+            <h3 class="text-xl font-bold mb-4">Elements</h3>
+            <div class="space-y-2">
+                <div draggable="true" class="element p-3 bg-blue-500 text-white rounded-lg cursor-grab" data-type="h1">Heading</div>
+                <div draggable="true" class="element p-3 bg-blue-500 text-white rounded-lg cursor-grab" data-type="p">Paragraph</div>
+                <div draggable="true" class="element p-3 bg-blue-500 text-white rounded-lg cursor-grab border" data-type="button">Button</div>
+                <div draggable="true" class="element p-3 bg-blue-500 text-white rounded-lg cursor-grab" data-type="div">Div</div>
+                <div draggable="true" class="element p-3 bg-blue-500 text-white rounded-lg cursor-grab" data-type="section">Section</div>
+                <div draggable="true" class="element p-3 bg-blue-500 text-white rounded-lg cursor-grab" data-type="ul">Unordered List</div>
+                <div draggable="true" class="element p-3 bg-blue-500 text-white rounded-lg cursor-grab" data-type="ol">Ordered List</div>
+                <div draggable="true" class="element p-3 bg-blue-500 text-white rounded-lg cursor-grab" data-type="input">Input Field</div>
+                <div draggable="true" class="element p-3 bg-blue-500 text-white rounded-lg cursor-grab border" data-type="select">Drop Down</div>
+                <div draggable="true" class="element p-3 bg-blue-500 text-white rounded-lg cursor-grab" data-type="textarea">Text Area</div>
             </div>
         </div>
         
-        <div class="fixed top-5 right-5 bg-white p-4 shadow-md rounded-lg hidden" id="stylePanel">
-            <!-- Drag Button -->
-            <button id="drag" class="cursor-move px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 rounded-lg p-1 block mx-auto">
-                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M6.5 15.75C6.5 14.3693 5.38071 13.25 4 13.25C2.61929 13.25 1.5 14.3693 1.5 15.75C1.5 17.1307 2.61929 18.25 4 18.25C5.38071 18.25 6.5 17.1307 6.5 15.75Z" fill="#c5bfbf"></path>
-                    <path d="M6.5 8.25C6.5 6.86929 5.38071 5.75 4 5.75C2.61929 5.75 1.5 6.86929 1.5 8.25C1.5 9.63071 2.61929 10.75 4 10.75C5.38071 10.75 6.5 9.63071 6.5 8.25Z" fill="#c5bfbf"></path>
-                    <path d="M12 13.25C13.3807 13.25 14.5 14.3693 14.5 15.75C14.5 17.1307 13.3807 18.25 12 18.25C10.6193 18.25 9.5 17.1307 9.5 15.75C9.5 14.3693 10.6193 13.25 12 13.25Z" fill="#c5bfbf"></path>
-                </svg>
-            </button>
-            <h3 class="text-lg font-semibold mb-3">Style Editor</h3>
-            <label class="block mb-2">Text Color: <input type="color" id="colorPicker" class="ml-2"></label>
-            <label class="block mb-2">Background Color: <input type="color" id="bgColorPicker" class="ml-2"></label>
-            <label class="block mb-2">Font Size: <input type="number" id="fontSize" class="border p-1 w-full"></label>
-            <label class="block mb-2">Font Weight:
-                <select id="fontWeight" class="border p-1 w-full">
-                    <option value="normal">Normal</option>
-                    <option value="bold">Bold</option>
-                </select>
-            </label>
-            <label class="block mb-2">Text Align:
-                <select id="textAlign" class="border p-1 w-full">
-                    <option value="left">Left</option>
-                    <option value="center">Center</option>
-                    <option value="right">Right</option>
-                </select>
-            </label>
-            <label class="block mb-2">Padding: <input type="number" id="padding" class="border p-1 w-full"></label>
-            <label class="block mb-2">Margin: <input type="number" id="margin" class="border p-1 w-full"></label>
-            <label class="block mb-2">Flex Direction:
-                <select id="flexDirection" class="border p-1 w-full">
-                    <option value="row">Row</option>
-                    <option value="column">Column</option>
-                </select>
-            </label>
-            <label class="block mb-2">Justify Content:
-                <select id="justifyContent" class="border p-1 w-full">
-                    <option value="flex-start">Start</option>
-                    <option value="center">Center</option>
-                    <option value="flex-end">End</option>
-                    <option value="space-between">Space Between</option>
-                    <option value="space-around">Space Around</option>
-                </select>
-            </label>
+        <!-- Builder Area -->
+        <div class="col-span-3 bg-gray-100 p-6 rounded-xl shadow-lg min-h-[500px] flex flex-col items-center justify-center" id="builderArea">
+            <h3 class="text-xl font-semibold text-gray-400">Drag and drop elements here</h3>
         </div>
-
-        <button id="saveBtn" class="mt-4 bg-teal-600 text-white px-4 py-2 rounded shadow-md hover:bg-blue-600 block mx-auto w-full">Save Page</button>
-
     </div>
 
-    <footer class="bg-gray-600 p-4 shadow-md text-center text-white fixed bottom-0 w-full mt-28">
+    <!-- Style Editor Panel -->
+    <div class="fixed top-10 right-10 bg-white p-5 shadow-lg rounded-xl hidden" id="stylePanel">
+        <h3 class="text-lg font-bold mb-4">Style Editor</h3>
+        <label class="block mb-2">Text Color: <input type="color" id="colorPicker" class="ml-2"></label>
+        <label class="block mb-2">Background: <input type="color" id="bgColorPicker" class="ml-2"></label>
+        <label class="block mb-2">Font Size: <input type="number" id="fontSize" class="border p-1 w-full"></label>
+        <label class="block mb-2">Padding: <input type="number" id="padding" class="border p-1 w-full"></label>
+        <label class="block mb-2">Margin: <input type="number" id="margin" class="border p-1 w-full"></label>
+        <label class="block mb-2">Text Align:
+            <select id="textAlign" class="border p-1 w-full">
+                <option value="left">Left</option>
+                <option value="center">Center</option>
+                <option value="right">Right</option>
+            </select>
+        </label>
+        <label class="block mb-2">Flex Direction:
+            <select id="flexDirection" class="border p-1 w-full">
+                <option value="row">Row</option>
+                <option value="column">Column</option>
+            </select>
+        </label>
+    </div>
+
+    <!-- Save Button -->
+    <button id="saveBtn" class="mt-6 bg-teal-600 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-teal-700 block mx-auto w-1/3 border">Save Page</button>
+</div>
+
+
+    <footer class="bg-blue-900 p-4 shadow-md text-center text-white fixed bottom-0 w-full mt-28">
         &#169; SiteForge
     </footer>
     

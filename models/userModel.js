@@ -54,3 +54,14 @@ exports.getUserByEmail = async (email, callback) => {
     callback(err, null);
   }
 };
+
+exports.updatePassword = async (email, password) => {
+  const query = 'UPDATE users SET password = ? WHERE email = ?';
+
+  try {
+    const [results] = await db.query(query, [password, email]);
+    return results;
+  } catch (err) {
+    throw err;
+  }
+};
