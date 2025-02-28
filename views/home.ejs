@@ -8,7 +8,7 @@
   <!-- Navbar -->
   <nav class="bg-blue-900 p-4 shadow-md">
     <div class="max-w-screen-xl px-16 mx-auto flex justify-between items-center">
-      <h1 class="text-white text-2xl font-semibold"><a href="/" class="text-white">SiteForge</a></h1>
+      <h1 class="text-white text-2xl font-semibold"><a href="/dashboard" class="text-white">SiteForge</a></h1>
       <div class="flex space-x-4">
         <a href="/profile" class="text-white text-sm bg-gray-400 duration-300 ease-in-out hover:bg-blue-500 px-4 py-2 rounded">Profile</a>
         <a href="/" class="text-white  text-sm bg-gray-400 duration-300 ease-in-out hover:bg-blue-500 px-4 py-2 rounded">Build Page</a>
@@ -26,7 +26,7 @@
         <form action="/ai/page" method="POST" class="p-4 bg-white shadow-md px-8 rounded">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 
-            <textarea name="prompt" rows="4" class="resize-none p-2 border rounded border border-gray-200 focus: border-gray-200 my-4 w-[97%]" placeholder="Enter your prompt..."></textarea>
+            <textarea name="prompt" rows="4" class="resize-none p-4 border rounded border border-gray-200 focus: border-gray-200 my-4 w-[97%]" placeholder="Enter your prompt..."></textarea>
             <p class="text-gray-400 text-sm">Enter prompt like "Create a landing page website for a college called 'Avanthi Institute'. Design it in CSS."</p>
             <button type="submit" class="w-full p-2 mt-2 bg-blue-500 text-white rounded">Generate Site</button>
         </form>

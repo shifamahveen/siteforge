@@ -17,13 +17,38 @@ builderArea.addEventListener('drop', async (e) => {
     const type = e.dataTransfer.getData('type');
     let newElement;
 
-    if (type === 'ul' || type === 'ol') {
-        // Create list with a single "List Item"
+    if (type === 'table') {
+        const rows = parseInt(prompt('Enter number of rows:', '3'), 10);
+        const cols = parseInt(prompt('Enter number of columns:', '3'), 10);
+
+        if (isNaN(rows) || isNaN(cols) || rows < 1 || cols < 1) return;
+
+        newElement = document.createElement('table');
+        newElement.style.borderCollapse = 'collapse';
+        newElement.style.width = '100%';
+
+        for (let i = 0; i < rows; i++) {
+            const row = document.createElement('tr');
+            for (let j = 0; j < cols; j++) {
+                const cell = document.createElement('td');
+                cell.style.border = '1px solid #000';
+                cell.style.padding = '8px';
+                cell.contentEditable = true; // Make cells editable
+                row.appendChild(cell);
+            }
+            newElement.appendChild(row);
+        }
+
+        newElement.addEventListener('click', () => selectElement(newElement));
+        builderArea.appendChild(newElement);
+    }
+    
+    else if (type === 'ul' || type === 'ol') {
         newElement = document.createElement(type);
         for (let i = 0; i < 3; i++) {
             const listItem = document.createElement('li');
             listItem.contentEditable = true;
-            listItem.textContent = `Item ${i + 1}`; // Default text
+            listItem.textContent = `Item ${i + 1}`;
             newElement.appendChild(listItem);
         }
 
@@ -36,7 +61,6 @@ builderArea.addEventListener('drop', async (e) => {
     } 
     
     else if (type === 'input') {
-        // Show a prompt to select input type
         const inputType = prompt('Enter input type (text, number, email, date):', 'text');
         if (inputType) {
             newElement = document.createElement('input');
@@ -84,7 +108,6 @@ builderArea.addEventListener('drop', async (e) => {
     }
     
     else {
-        // Default element creation
         newElement = document.createElement(type);
         if (type === 'h1') newElement.textContent = 'Heading';
         else if (type === 'p') newElement.textContent = 'Paragraph';
@@ -105,6 +128,7 @@ builderArea.addEventListener('drop', async (e) => {
 
     builderArea.appendChild(newElement);
 });
+
 
 function editSelectOptions(selectElement) {
     const options = Array.from(selectElement.options).map(opt => opt.textContent).join(', ');

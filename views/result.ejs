@@ -1,57 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Generated Page</title>
+    <title>Generated Pages</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100">
 <!-- Navbar -->
 <nav class="bg-blue-900 p-4 shadow-md">
   <div class="max-w-screen-xl px-16 mx-auto flex justify-between items-center">
-    <h1 class="text-white text-2xl font-semibold"><a href="/" class="text-white">SiteForge</a></h1>
+    <h1 class="text-white text-2xl font-semibold"><a href="/dashboard" class="text-white">SiteForge</a></h1>
     <div class="flex space-x-4">
       <a href="/profile" class="text-white text-sm bg-gray-400 duration-300 ease-in-out hover:bg-blue-500 px-4 py-2 rounded">Profile</a>
-      <a href="/" class="text-white  text-sm bg-gray-400 duration-300 ease-in-out hover:bg-blue-500 px-4 py-2 rounded">Build Page</a>
-      <a href="/ai/page" class="text-white  text-sm bg-gray-400 duration-300 ease-in-out hover:bg-blue-500 px-4 py-2 rounded">Generate Page</a>
+      <a href="/" class="text-white text-sm bg-gray-400 duration-300 ease-in-out hover:bg-blue-500 px-4 py-2 rounded">Build Page</a>
+      <a href="/ai/page" class="text-white text-sm bg-gray-400 duration-300 ease-in-out hover:bg-blue-500 px-4 py-2 rounded">Generate Page</a>
       <% if (user && user.role !== 'user') { %>  
-        <a href="/admin" class="text-white text-sm  bg-gray-400 duration-300 ease-in-out hover:bg-blue-500 px-4 py-2 rounded">Admin</a>
+        <a href="/admin" class="text-white text-sm bg-gray-400 duration-300 ease-in-out hover:bg-blue-500 px-4 py-2 rounded">Admin</a>
       <% } %>
-      <a href="/logout" class="text-white text-sm  bg-gray-400 duration-300 ease-in-out hover:bg-blue-500 px-4 py-2 rounded">Logout</a>
+      <a href="/logout" class="text-white text-sm bg-gray-400 duration-300 ease-in-out hover:bg-blue-500 px-4 py-2 rounded">Logout</a>
     </div>
   </div>
 </nav>
 
-    <div class="max-w-screen-xl p-4 sm:px-16 mx-auto mt-10 mb-20">
-        <h1 class="text-2xl font-semibold my-4">Generated Web Page</h1>
-        <div class="p-4 bg-white shadow-md rounded w-full">
-            <h2 class="font-semibold my-2">Generated Code:</h2>
-            
-            <div class="relative">
-                <button id="copyButton" class="absolute top-2 right-2 px-2 py-1 text-sm bg-blue-500 text-white rounded">Copy</button>
-                <pre id="codeBlock" class="p-2 border bg-gray-200 rounded whitespace-pre-wrap"><%= code %></pre>
-            </div>
-            
-            <p id="copyMessage" class="text-green-600 mt-2 hidden">Copied to clipboard!</p>
+<div class="max-w-screen-xl p-4 sm:px-16 mx-auto mt-10 mb-20">
+    <h1 class="text-2xl font-semibold my-4">Generated Web Pages</h1>
+    
+    <div class="bg-white p-4 shadow-md rounded">
+        <div class="flex border-b">
+            <% pages.forEach((page, index) => { %>
+                <button class="tab-button px-4 py-2 focus:outline-none" data-index="<%= index %>"><%= page %></button>
+            <% }); %>
         </div>
-
-        <h2 class="mt-4 font-semibold">Live Preview:</h2>
-        <iframe class="w-full h-fit my-4 mb-8" srcdoc="<%= code %>"></iframe>
-
-        <a href="/ai/page" class="mt-4 p-3 bg-blue-500 text-white rounded block w-full my-4 text-center">Generate Another</a>
+        
+        <% codes.forEach((code, index) => { %>
+            <div class="tab-content p-4 hidden" data-index="<%= index %>">
+                <h2 class="font-semibold my-2"><%= pages[index] %> Page Code:</h2>
+                <div class="relative">
+                    <button class="copy-button absolute top-2 right-2 px-2 py-1 text-sm bg-blue-500 text-white rounded">Copy</button>
+                    <pre class="code-block p-2 border bg-gray-200 rounded whitespace-pre-wrap"><%= code %></pre>
+                </div>
+                <p class="copy-message text-green-600 mt-2 hidden">Copied to clipboard!</p>
+                <h2 class="mt-4 font-semibold">Live Preview:</h2>
+                <iframe class="w-full h-96 my-4 mb-8" srcdoc="<%= code %>"></iframe>
+            </div>
+        <% }); %>
     </div>
-    <footer class="bg-blue-900 p-4 shadow-md text-center text-white fixed bottom-0 w-full mt-28">
-      &#169; SiteForge
-  </footer>
-    <script>
-        document.getElementById('copyButton').addEventListener('click', function () {
-            const codeText = document.getElementById('codeBlock').innerText;
+
+    <a href="/ai/page" class="mt-4 p-3 bg-blue-500 text-white rounded block w-full my-4 text-center">Generate Another</a>
+</div>
+
+<footer class="bg-blue-900 p-4 shadow-md text-center text-white fixed bottom-0 w-full mt-28">
+    &#169; SiteForge
+</footer>
+
+<script>
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.addEventListener('click', () => {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.querySelector(`.tab-content[data-index='${button.dataset.index}']`).classList.remove('hidden');
+        });
+    });
+    
+    document.querySelectorAll('.copy-button').forEach((button, index) => {
+        button.addEventListener('click', () => {
+            const codeText = document.querySelectorAll('.code-block')[index].innerText;
             navigator.clipboard.writeText(codeText).then(() => {
-                const message = document.getElementById('copyMessage');
+                const message = document.querySelectorAll('.copy-message')[index];
                 message.classList.remove('hidden');
                 setTimeout(() => message.classList.add('hidden'), 2000);
             });
         });
-    </script>
-    
+    });
+</script>
 </body>
 </html>

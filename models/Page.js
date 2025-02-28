@@ -27,14 +27,14 @@ class Page {
 
     static async getAllPagesWithContent() {
         try {
-            const query = 'SELECT id, name, content FROM pages ORDER BY created_at DESC';
+            const query = 'SELECT id, name, content, created_at FROM pages ORDER BY created_at DESC';
             const [rows] = await db.execute(query);
             return rows;
         } catch (error) {
             console.error('Error fetching pages with content:', error);
             throw error;
         }
-    }
+    }    
 
     // ✅ Correctly define getPageById as a static method
     static async getPageById(id) {

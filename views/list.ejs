@@ -10,7 +10,7 @@
       <!-- Navbar -->
       <nav class="bg-blue-900 p-4 shadow-md">
         <div class="max-w-screen-xl px-16 mx-auto flex justify-between items-center">
-          <h1 class="text-white text-2xl font-semibold"><a href="/" class="text-white">SiteForge</a></h1>
+          <h1 class="text-white text-2xl font-semibold"><a href="/dashboard" class="text-white">SiteForge</a></h1>
           <div class="flex space-x-4">
             <a href="/profile" class="text-white text-sm bg-gray-400 duration-300 ease-in-out hover:bg-blue-500 px-4 py-2 rounded">Profile</a>
             <a href="/" class="text-white  text-sm bg-gray-400 duration-300 ease-in-out hover:bg-blue-500 px-4 py-2 rounded">Build Page</a>
@@ -23,19 +23,57 @@
         </div>
       </nav>
 
-    <div class="max-w-4xl mx-auto bg-white p-6 rounded shadow my-20">
-        <h2 class="text-2xl font-semibold mb-4">Saved Pages</h2>
-        <div class="space-y-4">
-            <% pages.forEach((page, index) => { %>
-                <div class="p-4 border rounded bg-gray-50 flex justify-between items-center">
-                    <h3 class="text-lg font-semibold mb-2 text-teal-600"><%= index+1 %>. <%= page.name %></h3>
-                    <a href="/page/<%= page.id %>" class="text-white bg-teal-500 px-4 py-2 rounded inline-block">
-                        View Page
-                    </a>
-                </div>
-            <% }) %>
+      <div class="max-w-screen-xl px-16 mx-auto my-20 mb-40 flex justify-between space-x-8">
+        <!-- Left Section - User Info & Stats -->
+        <div class="w-1/3 bg-white p-6 rounded-lg shadow-md border">
+            <h1 class="text-3xl font-semibold text-blue-900">Hello, <%= user.name %>!</h1>
+    
+            <!-- Random Quote Section -->
+            <div class="my-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-lg">
+                <p class="italic text-gray-800">“<%= quote %>”</p>
+            </div>
+    
+            <!-- User Stats -->
+            <div class="mt-4 space-y-2 text-gray-700">
+                <p class="flex justify-between">
+                    <span>Total Pages Created:</span>
+                    <span class="font-semibold text-blue-900"><%= pages.length %></span>
+                </p>
+                <p class="flex justify-between">
+                    <span>Last Created:</span>
+                    <span class="font-semibold text-blue-900">
+                        <%= pages.length > 0 && pages[0].created_at ? pages[0].created_at.toDateString() : 'N/A' %>
+                    </span>
+                </p>
+                <p class="flex justify-between">
+                    <span>Most Recent Page:</span>
+                    <span class="font-semibold text-blue-900">
+                        <%= pages.length > 0 && pages[0].name ? pages[0].name : 'N/A' %>
+                    </span>
+                </p>
+            </div>
+        </div>
+    
+        <!-- Right Section - Saved Pages -->
+        <div class="w-2/3 bg-white p-6 rounded-lg shadow-md border">
+            <h2 class="text-2xl font-semibold text-blue-900 mb-4">Saved Pages</h2>
+            <div class="space-y-4">
+                <% if (pages.length > 0) { %>
+                    <% pages.forEach((page, index) => { %>
+                        <div class="p-4 border rounded-lg bg-gray-50 flex justify-between items-center shadow-sm">
+                            <h3 class="text-lg font-semibold text-blue-600"><%= index+1 %>. <%= page.name %></h3>
+                            <a href="/page/<%= page.id %>" class="text-white bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded transition duration-300 ease-in-out">
+                                View Page
+                            </a>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <p class="text-gray-500 italic">No pages created yet.</p>
+                <% } %>
+            </div>
         </div>
     </div>
+    
 
     <footer class="bg-blue-900 p-4 shadow-md text-center text-white fixed bottom-0 w-full mt-28">
       &#169; SiteForge

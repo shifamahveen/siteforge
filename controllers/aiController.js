@@ -6,16 +6,20 @@ exports.getPage = (req, res) => {
 };
 
 exports.generatePage = async (req, res) => {
-    let { prompt } = req.body;
     const user = req.session.user;
-
-    prompt += "Use inline styling only!";
-    const generatedCode = await aiModel.generateWebPageCode(prompt);
+    const pages = ['Home', 'About', 'Contact'];
     
-    if (!generatedCode) {
-        return res.render('home', { error: 'Failed to generate code', code: '' });
+    const prompts = pages.map(page => `Generate a ${page} page with inline styling. Dont do any linking, not even id linking or href linking. Let all pages be separate`);
+    
+    try {
+        const generatedCodes = await Promise.all(prompts.map(prompt => aiModel.generateWebPageCode(prompt)));
+        
+        if (generatedCodes.some(code => !code)) {
+            return res.render('home', { error: 'Failed to generate code', codes: [], pages, user });
+        }
+
+        res.render('result', { codes: generatedCodes, pages, user });
+    } catch (error) {
+        res.render('home', { error: 'Error generating pages', codes: [], pages, user });
     }
-
-    res.render('result', { code: generatedCode, user });
 };
-
