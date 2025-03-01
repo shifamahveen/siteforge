@@ -12,6 +12,7 @@ class Page {
             throw error;
         }
     }
+    
 
     // Fetch all pages
     static async getPages() {

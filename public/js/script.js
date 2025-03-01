@@ -33,7 +33,7 @@ builderArea.addEventListener('drop', async (e) => {
                 const cell = document.createElement('td');
                 cell.style.border = '1px solid #000';
                 cell.style.padding = '8px';
-                cell.contentEditable = true; // Make cells editable
+                cell.contentEditable = true;
                 row.appendChild(cell);
             }
             newElement.appendChild(row);
@@ -106,6 +106,99 @@ builderArea.addEventListener('drop', async (e) => {
         newElement.addEventListener('click', () => selectElement(newElement));
         builderArea.appendChild(newElement);
     }
+
+    else if (type === 'marquee') {
+        newElement = document.createElement('marquee');
+        newElement.textContent = 'Scrolling Text';
+        
+        const direction = prompt('Enter direction (left, right, up, down):', 'left');
+        if (direction) newElement.setAttribute('direction', direction);
+        
+        newElement.style.border = '1px solid #000';
+        newElement.style.padding = '8px';
+        newElement.contentEditable = true;
+        
+        newElement.addEventListener('click', () => selectElement(newElement));
+        builderArea.appendChild(newElement);
+    }
+
+    else if (type === 'video') {
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = type === 'image' ? 'image/*' : 'video/*';
+        fileInput.style.display = 'none';
+        
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const url = URL.createObjectURL(file);
+                newElement = document.createElement(type);
+                if (type === 'image') {
+                    newElement.src = url;
+                    newElement.style.maxWidth = '100%';
+                    newElement.style.height = 'auto';
+                } else {
+                    newElement.src = url;
+                    newElement.controls = true;
+                    newElement.style.maxWidth = '100%';
+                }
+
+                newElement.className = 'rounded';
+                newElement.style.border = '1px solid #000';
+                newElement.addEventListener('click', () => selectElement(newElement));
+
+                builderArea.appendChild(newElement);
+            }
+        });
+
+        document.body.appendChild(fileInput);
+        fileInput.click();
+        return;
+    }
+
+    else if (type === 'image') {
+        const choice = confirm('Click OK to upload an image, or Cancel to enter a URL.');
+
+        newElement = document.createElement('img');
+        newElement.style.maxWidth = '100%';
+        newElement.style.height = 'auto';
+        newElement.style.border = '1px solid #000';
+        newElement.style.padding = '5px';
+        newElement.classList.add('rounded');
+
+        if (!choice) { 
+            // User chooses to enter a URL
+            const imageUrl = prompt('Enter Image URL:');
+            if (imageUrl) {
+                newElement.src = imageUrl;
+                builderArea.appendChild(newElement);
+            }
+        } else {
+            // User chooses to upload a file
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.style.display = 'none';
+            document.body.appendChild(input);
+
+            input.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        newElement.src = e.target.result;
+                        builderArea.appendChild(newElement);
+                    };
+                    reader.readAsDataURL(file);
+                }
+                document.body.removeChild(input);
+            });
+
+            input.click();
+        }
+
+        return;
+    }
     
     else {
         newElement = document.createElement(type);
@@ -128,7 +221,6 @@ builderArea.addEventListener('drop', async (e) => {
 
     builderArea.appendChild(newElement);
 });
-
 
 function editSelectOptions(selectElement) {
     const options = Array.from(selectElement.options).map(opt => opt.textContent).join(', ');
@@ -200,14 +292,42 @@ saveBtn.addEventListener('click', async () => {
     const elements = [];
     builderArea.childNodes.forEach(el => {
         if (el.nodeType === 1) {
-            elements.push({
-                type: el.className,
-                content: el.textContent,
-                styles: el.style.cssText
-            });
+            let elementData = {
+                type: el.className || el.tagName.toLowerCase(),
+                styles: el.style.cssText || '',
+                content: el.textContent.trim() || '',
+            };
+
+            // Handle different elements
+            if (el.tagName === 'IMG') {
+                if (el.src.startsWith('blob:')) {
+                    convertToBase64(el.src).then(base64 => {
+                        elementData.src = base64;
+                        elements.push(elementData);
+                    });
+                } else {
+                    elementData.src = el.src;
+                }
+            } 
+            else if (el.tagName === 'VIDEO') {
+                if (el.src.startsWith('blob:')) {
+                    convertToBase64(el.src).then(base64 => {
+                        elementData.src = base64;
+                        elements.push(elementData);
+                    });
+                } else {
+                    elementData.src = el.src;
+                }
+                elementData.controls = el.controls;
+            } 
+            else if (el.tagName === 'UL') {
+                elementData.items = Array.from(el.querySelectorAll('li')).map(li => li.textContent);
+            }
+
+            elements.push(elementData);
         }
     });
-    
+
     const name = prompt('Enter a name for your page:');
     if (name) {
         try {
@@ -225,3 +345,14 @@ saveBtn.addEventListener('click', async () => {
         }
     }
 });
+
+// Function to Convert Blob URLs to Base64
+async function convertToBase64(blobUrl) {
+    const response = await fetch(blobUrl);
+    const blob = await response.blob();
+    return new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(blob);
+    });
+}

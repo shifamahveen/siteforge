@@ -15,22 +15,27 @@ exports.savePage = async (req, res) => {
     try {
         const { name, content } = req.body;
 
-        // Ensure content is parsed if it's a string
-        let parsedContent;
-        if (typeof content === 'string') {
-            parsedContent = JSON.parse(content);  
-        } else {
-            parsedContent = content;  
-        }
+        // Ensure content is parsed properly
+        let parsedContent = typeof content === 'string' ? JSON.parse(content) : content;
 
-        // Validate the input
         if (!name || !parsedContent) {
             return res.status(400).json({ message: 'Name and content are required' });
         }
 
-        // Now save the page with the parsed content
-        await Page.savePage(name, parsedContent);  // Save the page using the model
+        // Validate elements and structure
+        parsedContent = parsedContent.map(el => ({
+            type: el.type,
+            styles: el.styles || '',
+            content: el.content || '',
+            src: el.src || null,
+            items: el.items || null,  // Store list items separately
+            controls: el.controls || null,
+        }));
+
+        // Save the page using the model
+        await Page.savePage(name, parsedContent);
         res.status(200).json({ message: 'Page saved successfully' });
+
     } catch (err) {
         console.error('Error saving page:', err);
         res.status(500).json({ message: 'Internal Server Error' });
