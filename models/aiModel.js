@@ -5,7 +5,7 @@ async function generateWebPageCode(prompt) {
     const options = {
         method: 'POST',
         headers: {
-            'x-rapidapi-key': 'ea86ec0756msh17e532df1e1c9c9p170c20jsnebad0933d91c',
+            'x-rapidapi-key': 'd95138bcccmsh5d35a3a49ecb578p17c5b4jsn72168f34851e',
             'x-rapidapi-host': 'chat-gpt26.p.rapidapi.com',
             'Content-Type': 'application/json'
         },
