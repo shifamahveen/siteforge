@@ -27,13 +27,29 @@
         <h2 class="text-2xl font-semibold mb-4 text-center"><%= page.name %></h2>
 
         <div x-data="{ elements: <%= JSON.stringify(page.content) %> }">
-            <template x-for="(item, index) in elements" :key="item.content">
-                <div :class="index % 2 === 0 ? 'my-6' : 'my-4'">
-                    <component :is="item.type" :style="item.styles" x-text="item.content" class="block border-0"></component>
-                </div>
-            </template>
-        </div>
-        
+          <template x-for="(item, index) in elements" :key="index">
+              <div :class="index % 2 === 0 ? 'my-6' : 'my-4'">
+                  <template x-if="item.src && item.type === 'rounded'">
+                      <img :src="item.src" :style="item.styles" class="block border-0 rounded">
+                  </template>
+      
+                  <template x-if="item.src && item.type === 'video'">
+                      <video :src="item.src" :style="item.styles" class="block border-0 rounded" controls></video>
+                  </template>
+      
+                  <template x-if="!item.src && item.content">
+                      <span :class="item.type" :style="item.styles" x-html="item.content"></span>
+                  </template>
+      
+                  <template x-if="item.controls">
+                      <div :style="item.styles" class="block border-0 p-4">
+                          Controls enabled
+                      </div>
+                  </template>
+              </div>
+          </template>
+      </div>
+      
         
         <a href="/dashboard" class="block mt-6 bg-teal-600 text-white p-4 rounded shadow text-center">← Back to Pages</a>
     </div>

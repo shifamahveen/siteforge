@@ -1,5 +1,7 @@
 const Page = require('../models/Page');
 const db = require('../config/db');
+const fs = require("fs");
+const path = require("path");
 
 exports.getPageBuilder = async (req, res) => {
     try {
@@ -13,34 +15,45 @@ exports.getPageBuilder = async (req, res) => {
 
 exports.savePage = async (req, res) => {
     try {
-        const { name, content } = req.body;
+        let { name, content } = req.body;
 
-        // Ensure content is parsed properly
-        let parsedContent = typeof content === 'string' ? JSON.parse(content) : content;
+        if (typeof content === 'string') {
+            content = JSON.parse(content);  
+        }
 
-        if (!name || !parsedContent) {
+        if (!name || !content) {
             return res.status(400).json({ message: 'Name and content are required' });
         }
 
-        // Validate elements and structure
-        parsedContent = parsedContent.map(el => ({
-            type: el.type,
-            styles: el.styles || '',
-            content: el.content || '',
-            src: el.src || null,
-            items: el.items || null,  // Store list items separately
-            controls: el.controls || null,
-        }));
+        // Define the uploads directory
+        const uploadDir = path.join(__dirname, "../public/uploads");
 
-        // Save the page using the model
-        await Page.savePage(name, parsedContent);
+        // Ensure the uploads directory exists
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+
+        // Convert long blob/base64 URLs to file paths
+        content.forEach(item => {
+            if (item.src && (typeof item.src === 'string') && (item.src.startsWith("data:image") || item.src.startsWith("blob:"))) {
+                const filename = `uploads/${Date.now()}.jpg`;
+                const filePath = path.join(__dirname, `../public/${filename}`);
+
+                const base64Data = item.src.replace(/^data:image\/\w+;base64,/, "");
+                fs.writeFileSync(filePath, Buffer.from(base64Data, "base64"));
+                
+                item.src = `/${filename}`; // Store relative path
+            }
+        });
+
+        await Page.savePage(name, content);
         res.status(200).json({ message: 'Page saved successfully' });
-
     } catch (err) {
         console.error('Error saving page:', err);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
+
 
 exports.listPages = async (req, res) => {
     try {
@@ -106,12 +119,11 @@ exports.viewPage = async (req, res) => {
         }
 
         const page = rows[0];
-
         if (typeof page.content === "string") {
             page.content = JSON.parse(page.content);
         }
 
-        res.render('page', { page,  user: req.session.user });
+        res.render('page', { page, user: req.session.user });
     } catch (error) {
         console.error('Error fetching page:', error);
         res.status(500).send('Server error');
