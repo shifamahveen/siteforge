@@ -1,6 +1,53 @@
 const builderArea = document.getElementById('builderArea');
 const saveBtn = document.getElementById('saveBtn');
-let selectedElement = null;
+const gridPanel = document.getElementById('gridPanel');
+const gridColumnsInput = document.getElementById('gridColumns');
+const applyGridBtn = document.getElementById('applyGrid');
+
+let selectedElements = new Set();
+
+// Multi-Selection of Elements
+builderArea.addEventListener('click', (e) => {
+    if (e.target !== builderArea && e.target !== saveBtn) {
+        if (e.ctrlKey) {
+            if (selectedElements.has(e.target)) {
+                e.target.classList.remove('border-blue-500');
+                selectedElements.delete(e.target);
+            } else {
+                e.target.classList.add('border-blue-500', 'border-2');
+                selectedElements.add(e.target);
+            }
+        } else {
+            selectedElements.forEach(el => el.classList.remove('border-blue-500', 'border-2'));
+            selectedElements.clear();
+            selectedElements.add(e.target);
+            e.target.classList.add('border-blue-500', 'border-2');
+        }
+
+        gridPanel.classList.toggle('hidden', selectedElements.size === 0);
+    }
+});
+
+// Apply Grid Layout
+applyGridBtn.addEventListener('click', () => {
+    if (selectedElements.size === 0) return;
+
+    const columns = parseInt(gridColumnsInput.value, 10);
+    if (isNaN(columns) || columns < 1 || columns > 6) return;
+
+    const gridContainer = document.createElement('div');
+    gridContainer.classList.add(`grid`, `gap-4`, `mt-4`);
+    gridContainer.style.gridTemplateColumns = `repeat(${columns}, minmax(0, 1fr))`;
+
+    selectedElements.forEach(el => {
+        el.classList.remove('border-blue-500', 'border-2');
+        gridContainer.appendChild(el);
+    });
+
+    builderArea.appendChild(gridContainer);
+    selectedElements.clear();
+    gridPanel.classList.add('hidden');
+});
 
 // Handle drag-and-drop
 document.querySelectorAll('.element').forEach(el => {

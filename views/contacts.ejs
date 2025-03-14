@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>AI Page Generator</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Us</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100">
+
     <!-- Navbar -->
     <nav class="bg-blue-900 p-4 shadow-md">
       <div class="max-w-screen-xl px-16 mx-auto flex justify-between items-center">
@@ -23,19 +26,37 @@
       </div>
     </nav>
 
-    <div class="max-w-screen-xl p-4 sm:px-16 mx-auto mt-10 mb-20">
-        <h1 class="text-2xl font-semibold my-8">AI Web Page Generator</h1>
-        <form action="/ai/page" method="POST" class="p-4 bg-white shadow-md px-8 rounded">
-            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-
-            <textarea name="prompt" rows="4" class="resize-none p-4 border rounded border border-gray-200 focus: border-gray-200 my-4 w-[97%]" placeholder="Enter your prompt..."></textarea>
-            <p class="text-gray-400 text-sm">Enter prompt like "Create a landing page website for a college called 'Avanthi Institute'. Design it in CSS."</p>
-            <button type="submit" class="w-full p-2 mt-2 bg-blue-500 text-white rounded">Generate Site</button>
-        </form>
+  <!-- Contact Form Section -->
+  <section class="max-w-screen-xl px-16 mx-auto py-12 mb-20">
+    <div class="bg-white shadow-md rounded-lg p-8">
+      <h1 class="text-2xl font-semibold mb-4">Contact Queries</h1>
+      <table class="w-full border-collapse">
+        <thead>
+          <tr class="bg-blue-800 text-white">
+            <th class="border p-2">SNO</th>
+            <th class="border p-2">Name</th>
+            <th class="border p-2">Email</th>
+            <th class="border p-2">Message</th>
+            <th class="border p-2">Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% contacts.forEach((contact, k) => { %>
+            <tr class="border bg-gray-100 text-black">
+              <td class="p-2"><%= ++k %></td>
+              <td class="p-2"><%= contact.name %></td>
+              <td class="p-2"><%= contact.email %></td>
+              <td class="p-2"><%= contact.message %></td>
+              <td class="p-2"><%= new Date(contact.created_at).toLocaleString() %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
     </div>
+  </section>
 
-    <footer class="bg-blue-900 p-4 shadow-md text-center text-white fixed bottom-0 w-full mt-28">
-      &#169; SiteForge
-  </footer>
+  <footer class="bg-blue-900 p-4 shadow-md text-center text-white fixed bottom-0 w-full mt-28">
+    &#169; SiteForge
+</footer>
 </body>
 </html>

@@ -6,6 +6,7 @@ const csrf = require('csurf');
 const pageBuilderRoutes = require('./routes/pageBuilderRoutes');
 const authRoutes = require('./routes/authRoutes');
 const aiRoutes = require('./routes/aiRoutes');
+const contactRoutes = require('./routes/contactRoutes');
 
 const app = express();
 
@@ -53,6 +54,7 @@ app.use((req, res, next) => {
 app.use('/', authRoutes);
 app.use('/', pageBuilderRoutes);
 app.use('/ai', aiRoutes);
+app.use('/', contactRoutes);
 
 // Start the server
 app.listen(3000, () => {

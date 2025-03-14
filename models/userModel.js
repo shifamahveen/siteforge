@@ -68,3 +68,16 @@ exports.updatePassword = async (email, password) => {
     throw err;
   }
 };
+
+exports.verifySecurityAnswer = (email, phone, callback) => {
+  const query = 'SELECT * FROM users WHERE email = ? AND phone = ?';
+  db.query(query, [email, phone], (err, results) => {
+    if (err) return callback(err, null);
+    callback(null, results.length > 0);
+  });
+};
+
+exports.updatePassword = (email, newPassword, callback) => {
+  const query = 'UPDATE users SET password = ? WHERE email = ?';
+  db.query(query, [newPassword, email], callback);
+};

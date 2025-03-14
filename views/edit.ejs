@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saved Pages</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class=" bg-gray-100">
+      <!-- Navbar -->
+  <nav class="bg-blue-900 p-4 shadow-md">
+    <div class="max-w-screen-xl px-16 mx-auto flex justify-between items-center">
+      <h1 class="text-white text-2xl font-semibold"><a href="/dashboard" class="text-white">SiteForge</a></h1>
+      <div class="flex space-x-4">
+        <a href="/profile" class="text-white text-sm bg-gray-400 duration-300 ease-in-out hover:bg-blue-500 px-4 py-2 rounded">Profile</a>
+        <a href="/" class="text-white  text-sm bg-gray-400 duration-300 ease-in-out hover:bg-blue-500 px-4 py-2 rounded">Build Page</a>
+        <a href="/ai/page" class="text-white  text-sm bg-gray-400 duration-300 ease-in-out hover:bg-blue-500 px-4 py-2 rounded">Generate Page</a>
+        <% if (user && user.role !== 'user') { %>  
+          <a href="/admin" class="text-white text-sm  bg-gray-400 duration-300 ease-in-out hover:bg-blue-500 px-4 py-2 rounded">Admin</a>
+          <a href="/contacts" class="text-white text-sm  bg-gray-400 duration-300 ease-in-out hover:bg-blue-500 px-4 py-2 rounded">Queries</a>
+        <% } %>
+        <a href="/contact" class="text-white  text-sm bg-gray-400 duration-300 ease-in-out hover:bg-blue-500 px-4 py-2 rounded">Contact Us</a>
+        <a href="/logout" class="text-white text-sm  bg-gray-400 duration-300 ease-in-out hover:bg-blue-500 px-4 py-2 rounded">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="max-w-screen-xl px-16 mx-auto my-20 mb-40 flex justify-between space-x-8">
+    <!-- Left Section: Form for Editing -->
+    <div class="w-1/2 bg-white p-6 rounded-lg shadow-md border">
+        <h2 class="text-2xl font-semibold text-blue-900 mb-4">Edit Page</h2>
+
+        <form action="/update/<%= page.id %>" method="POST">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+
+            <div class="mb-4">
+                <label class="block text-gray-700 font-semibold mb-2">Page Name</label>
+                <input type="text" name="name" value="<%= page.name %>" required
+                    class="w-full p-2 border rounded-lg shadow-sm focus:outline-none focus:ring focus:border-blue-300">
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-gray-700 font-semibold mb-2">Page Content (JSON Format)</label>
+                <textarea name="content" rows="6" required
+                    class="w-full p-2 border rounded-lg shadow-sm focus:outline-none focus:ring focus:border-blue-300"><%= JSON.stringify(page.content, null, 2) %></textarea>
+            </div>
+
+            <div class="flex space-x-2">
+                <button type="submit" class="text-white bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded transition duration-300 ease-in-out">
+                    Save Changes
+                </button>
+                <a href="/dashboard" class="text-white bg-gray-500 hover:bg-gray-600 px-4 py-2 rounded transition duration-300 ease-in-out">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Right Section: Page View (Same as page.ejs) -->
+    <div class="w-1/2 bg-gray-100 p-6 rounded-lg shadow-md border">
+        <h2 class="text-2xl font-semibold text-blue-900 mb-4">Page Preview</h2>
+
+        <div x-data="{ elements: <%= JSON.stringify(page.content) %> }">
+            <template x-for="(item, index) in elements" :key="index">
+                <div :class="index % 2 === 0 ? 'my-6' : 'my-4'">
+                    <template x-if="item.src && item.type === 'rounded'">
+                        <img :src="item.src" :style="item.styles" class="block border-0 rounded">
+                    </template>
+
+                    <template x-if="item.src && item.type === 'video'">
+                        <video :src="item.src" :style="item.styles" class="block border-0 rounded" controls></video>
+                    </template>
+
+                    <template x-if="!item.src && item.content">
+                        <span :class="item.type" :style="item.styles" x-html="item.content"></span>
+                    </template>
+
+                    <template x-if="item.controls">
+                        <div :style="item.styles" class="block border-0 p-4">
+                            Controls enabled
+                        </div>
+                    </template>
+                </div>
+            </template>
+        </div>
+    </div>           
+</div>
+
+    <footer class="bg-blue-900 p-4 shadow-md text-center text-white fixed bottom-0 w-full mt-28">
+      &#169; SiteForge
+    </footer>
+
+  <script>
+    function updatePreview() {
+        try {
+            const jsonData = JSON.parse(document.getElementById("contentEditor").value);
+            document.getElementById("previewContainer").__x.$data.elements = jsonData;
+        } catch (error) {
+            console.error("Invalid JSON format:", error);
+        }
+    }
+</script>
+</body>
+</html>

@@ -54,7 +54,6 @@ exports.savePage = async (req, res) => {
     }
 };
 
-
 exports.listPages = async (req, res) => {
     try {
         const pages = await Page.getAllPagesWithContent();
@@ -99,16 +98,6 @@ exports.listPages = async (req, res) => {
     }
 };
 
-exports.deletePage = async (req, res) => {
-    try {
-        const { id } = req.params;
-        await db.query('DELETE FROM pages WHERE id = ?', [id]); 
-        res.status(200).json({ message: 'Page deleted successfully' });
-    } catch (error) {
-        res.status(500).json({ error: 'Error deleting page' });
-    }
-};
-
 exports.viewPage = async (req, res) => {
     try {
         const pageId = req.params.id;
@@ -127,5 +116,46 @@ exports.viewPage = async (req, res) => {
     } catch (error) {
         console.error('Error fetching page:', error);
         res.status(500).send('Server error');
+    }
+};
+
+exports.editPage = async (req, res) => {
+    try {
+        const page = await Page.getPageById(req.params.id);
+        if (!page) {
+            return res.status(404).send("Page not found");
+        }
+
+        if (typeof page.content === "string") {
+            page.content = JSON.parse(page.content);
+        }
+
+        res.render('edit', { page, user: req.session.user });
+    } catch (error) {
+        console.error("Error fetching page:", error);
+        res.status(500).send("Internal Server Error");
+    }
+};
+
+
+// Update page
+exports.updatePage = async (req, res) => {
+    try {
+        const { name, content } = req.body;
+        await Page.updatePage(req.params.id, name, JSON.parse(content));
+        res.redirect('/');
+    } catch (error) {
+        console.error("Error updating page:", error);
+        res.status(500).send("Internal Server Error");
+    }
+};
+
+exports.deletePage = async (req, res) => {
+    try {
+        const result = await Page.deletePage(req.params.id);
+        res.json({ message: "Page deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting page:", error);
+        res.status(500).json({ message: "Error deleting page" });
     }
 };

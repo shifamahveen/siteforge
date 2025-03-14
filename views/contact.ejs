@@ -3,14 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin - User List</title>
-  <link rel="icon" href="https://talkao.com/wp-content/uploads/2022/09/augmented-reality-translate-icon.png" />
+  <title>Contact Us</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 text-white">
 
-  <!-- Navbar -->
-  <nav class="bg-blue-900 p-4 shadow-md">
+   <!-- Navbar -->
+   <nav class="bg-blue-900 p-4 shadow-md">
     <div class="max-w-screen-xl px-16 mx-auto flex justify-between items-center">
       <h1 class="text-white text-2xl font-semibold"><a href="/dashboard" class="text-white">SiteForge</a></h1>
       <div class="flex space-x-4">
@@ -27,33 +26,37 @@
     </div>
   </nav>
 
-  <!-- Admin Section: User List -->
-  <section class="max-w-screen-xl px-20 py-10 mx-auto text-gray-800">
-    <h1 class="text-3xl font-semibold mb-8">Admin - User List</h1>
-  
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-      <% users.forEach((user, index) => { %>
-        <div class="bg-white border-l-4 border-blue-800 rounded-lg shadow-md p-6 flex justify-between items-center">
-          <div>
-            <h2 class="text-2xl font-semibold mb-4"><%= index+1 %>. <%= user.name %></h2>
-            <ul class="">
-              <li><span class="text-blue-800 font-semibold">Email:</span> <%= user.email %></li>
-              <li><span class="text-blue-800 font-semibold">Phone:</span> <%= user.phone %></li>
-              <li><span class="text-blue-800 font-semibold">Role:</span> <%= user.role %></li>
-              <li><span class="text-blue-800 font-semibold">Gender:</span> <%= user.gender %></li>
-              <li><span class="text-blue-800 font-semibold">Location:</span> <%= user.location %></li>
-            </ul>
-          </div>
-          
-  
+  <!-- Contact Form Section -->
+  <section class="max-w-screen-md mx-auto py-12 mb-20">
+    <div class="bg-white shadow-md rounded-lg p-8">
+      <h2 class="text-2xl font-semibold text-blue-800 mb-6">Contact Us</h2>
+
+      <% if (success) { %>
+        <div class="bg-green-500 text-white p-4 rounded mb-4">Message sent successfully!</div>
+        <% } %>
+
+      <form action="/contact" method="POST">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+
+        <div class="mb-4">
+          <label class="blocktext-black">Name</label>
+          <input type="text" name="name" class="w-full px-4 py-2 border rounded text-blue-800" required>
         </div>
-      <% }) %>
+        <div class="mb-4">
+          <label class="blocktext-black">Email</label>
+          <input type="email" name="email" class="w-full px-4 py-2 border rounded text-blue-800" required>
+        </div>
+        <div class="mb-4">
+          <label class="blocktext-black">Message</label>
+          <textarea name="message" rows="4" class="w-full px-4 py-2 border rounded text-blue-800" required></textarea>
+        </div>
+        <button type="submit" class="w-full bg-blue-800 text-white py-2 rounded hover:bg-blue-900">Send Message</button>
+      </form>
     </div>
   </section>
 
   <footer class="bg-blue-900 p-4 shadow-md text-center text-white fixed bottom-0 w-full mt-28">
     &#169; SiteForge
 </footer>
-  
 </body>
 </html>

@@ -8,6 +8,7 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="bg-gray-100">
+  <!-- Navbar -->
   <nav class="bg-blue-900 p-4 shadow-md">
     <div class="max-w-screen-xl px-16 mx-auto flex justify-between items-center">
       <h1 class="text-white text-2xl font-semibold"><a href="/dashboard" class="text-white">SiteForge</a></h1>
@@ -17,7 +18,9 @@
         <a href="/ai/page" class="text-white  text-sm bg-gray-400 duration-300 ease-in-out hover:bg-blue-500 px-4 py-2 rounded">Generate Page</a>
         <% if (user && user.role !== 'user') { %>  
           <a href="/admin" class="text-white text-sm  bg-gray-400 duration-300 ease-in-out hover:bg-blue-500 px-4 py-2 rounded">Admin</a>
+          <a href="/contacts" class="text-white text-sm  bg-gray-400 duration-300 ease-in-out hover:bg-blue-500 px-4 py-2 rounded">Queries</a>
         <% } %>
+        <a href="/contact" class="text-white  text-sm bg-gray-400 duration-300 ease-in-out hover:bg-blue-500 px-4 py-2 rounded">Contact Us</a>
         <a href="/logout" class="text-white text-sm  bg-gray-400 duration-300 ease-in-out hover:bg-blue-500 px-4 py-2 rounded">Logout</a>
       </div>
     </div>
