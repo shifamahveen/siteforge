@@ -1,53 +1,7 @@
 const builderArea = document.getElementById('builderArea');
 const saveBtn = document.getElementById('saveBtn');
-const gridPanel = document.getElementById('gridPanel');
-const gridColumnsInput = document.getElementById('gridColumns');
-const applyGridBtn = document.getElementById('applyGrid');
 
-let selectedElements = new Set();
-
-// Multi-Selection of Elements
-builderArea.addEventListener('click', (e) => {
-    if (e.target !== builderArea && e.target !== saveBtn) {
-        if (e.ctrlKey) {
-            if (selectedElements.has(e.target)) {
-                e.target.classList.remove('border-blue-500');
-                selectedElements.delete(e.target);
-            } else {
-                e.target.classList.add('border-blue-500', 'border-2');
-                selectedElements.add(e.target);
-            }
-        } else {
-            selectedElements.forEach(el => el.classList.remove('border-blue-500', 'border-2'));
-            selectedElements.clear();
-            selectedElements.add(e.target);
-            e.target.classList.add('border-blue-500', 'border-2');
-        }
-
-        gridPanel.classList.toggle('hidden', selectedElements.size === 0);
-    }
-});
-
-// Apply Grid Layout
-applyGridBtn.addEventListener('click', () => {
-    if (selectedElements.size === 0) return;
-
-    const columns = parseInt(gridColumnsInput.value, 10);
-    if (isNaN(columns) || columns < 1 || columns > 6) return;
-
-    const gridContainer = document.createElement('div');
-    gridContainer.classList.add(`grid`, `gap-4`, `mt-4`);
-    gridContainer.style.gridTemplateColumns = `repeat(${columns}, minmax(0, 1fr))`;
-
-    selectedElements.forEach(el => {
-        el.classList.remove('border-blue-500', 'border-2');
-        gridContainer.appendChild(el);
-    });
-
-    builderArea.appendChild(gridContainer);
-    selectedElements.clear();
-    gridPanel.classList.add('hidden');
-});
+let selectedElements = null;
 
 // Handle drag-and-drop
 document.querySelectorAll('.element').forEach(el => {
@@ -64,7 +18,43 @@ builderArea.addEventListener('drop', async (e) => {
     const type = e.dataTransfer.getData('type');
     let newElement;
 
-    if (type === 'table') {
+    if (type === 'grid') {
+        const cols = parseInt(prompt('Enter number of columns:', '3'), 10);
+        if (isNaN(cols) || cols < 1 || cols > 12) return;
+
+        let total = 0;
+        const colSizes = [];
+
+        for (let i = 0; i < cols; i++) {
+            let size;
+            do {
+                size = parseInt(prompt(`Enter size for column ${i + 1} (remaining ${12 - total}):`, '4'), 10);
+            } while (isNaN(size) || size < 1 || size > 12 - total);
+            colSizes.push(size);
+            total += size;
+        }
+
+        if (total !== 12) {
+            alert('Total column size must be exactly 12. Try again.');
+            return;
+        }
+
+        newElement = document.createElement('div');
+        newElement.className = 'grid grid-cols-12 gap-2 w-full';
+        
+        colSizes.forEach(size => {
+            const cell = document.createElement('div');
+            cell.className = `col-span-${size} border p-4`;
+            cell.contentEditable = true;
+            newElement.appendChild(cell);
+        });
+
+        newElement.addEventListener('click', () => selectElement(newElement));
+        builderArea.appendChild(newElement);
+        return;
+    }
+
+    else if (type === 'table') {
         const rows = parseInt(prompt('Enter number of rows:', '3'), 10);
         const cols = parseInt(prompt('Enter number of columns:', '3'), 10);
 
@@ -262,6 +252,7 @@ builderArea.addEventListener('drop', async (e) => {
 
     newElement.contentEditable = type !== 'input' && type !== 'form' && type !== 'ul' && type !== 'ol' && type !== 'select' && type !== 'textarea';
     newElement.className = `${type} rounded`;
+    if(type === 'input' || type === 'form' || type === 'select' || type === 'textarea')
     newElement.style.border = '1px solid #000';
     newElement.style.padding = '8px';
     newElement.addEventListener('click', () => selectElement(newElement));

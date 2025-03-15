@@ -18,35 +18,48 @@ exports.savePage = async (req, res) => {
         let { name, content } = req.body;
 
         if (typeof content === 'string') {
-            content = JSON.parse(content);  
+            content = JSON.parse(content);
         }
 
         if (!name || !content) {
             return res.status(400).json({ message: 'Name and content are required' });
         }
 
-        // Define the uploads directory
         const uploadDir = path.join(__dirname, "../public/uploads");
-
-        // Ensure the uploads directory exists
         if (!fs.existsSync(uploadDir)) {
             fs.mkdirSync(uploadDir, { recursive: true });
         }
 
-        // Convert long blob/base64 URLs to file paths
         content.forEach(item => {
-            if (item.src && (typeof item.src === 'string') && (item.src.startsWith("data:image") || item.src.startsWith("blob:"))) {
+            if (item.src && typeof item.src === 'string' && (item.src.startsWith("data:image") || item.src.startsWith("blob:"))) {
                 const filename = `uploads/${Date.now()}.jpg`;
                 const filePath = path.join(__dirname, `../public/${filename}`);
 
                 const base64Data = item.src.replace(/^data:image\/\w+;base64,/, "");
                 fs.writeFileSync(filePath, Buffer.from(base64Data, "base64"));
-                
-                item.src = `/${filename}`; // Store relative path
+
+                item.src = `/${filename}`;
             }
         });
 
-        await Page.savePage(name, content);
+        // Fix Grid Structure: Ensure grid content is stored properly
+        let formattedContent = content.map(item => {
+            if (item.type.startsWith("grid grid-cols-") && Array.isArray(item.content)) {
+                return {
+                    type: item.type,
+                    styles: item.styles,
+                    content: item.content.map((colContent, index) => ({
+                        type: `col-span-${colContent.size}`,  // Keep col-span size
+                        styles: colContent.styles || "",
+                        content: colContent.content
+                    }))
+                };
+            }
+            return item;
+        });
+
+        await Page.savePage(name, formattedContent);
+
         res.status(200).json({ message: 'Page saved successfully' });
     } catch (err) {
         console.error('Error saving page:', err);
