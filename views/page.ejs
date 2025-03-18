@@ -32,16 +32,35 @@
         <div x-data="{ elements: <%= JSON.stringify(page.content) %> }">
           <template x-for="(item, index) in elements" :key="index">
               <div :class="index % 2 === 0 ? 'my-6' : 'my-4'">
-                  <template x-if="item.src && item.type === 'rounded'">
-                      <img :src="item.src" :style="item.styles" class="block border-0 rounded">
+      
+                  <template x-if="item.type.startsWith('grid grid-cols-')">
+                      <div :class="item.type" class="gap-2 w-full">
+                          <template x-for="(col, colIndex) in item.content" :key="colIndex">
+                              <div :class="col.type" class="border p-4" 
+                                   x-text="Array.isArray(col.content) ? col.content.join(' ') : col.content">
+                              </div>
+                          </template>
+                      </div>
+                  </template>
+      
+                  <!-- ✅ Fixed Image Display: Check Both `content` and `src` -->
+                  <template x-if="(item.src || item.content) && item.type === 'rounded'">
+                      <img :src="(item.src || item.content).startsWith('data:image') || (item.src || item.content).startsWith('http') 
+                                 ? (item.src || item.content) 
+                                 : '/' + (item.src || item.content)" 
+                           :style="item.styles" class="block border-0 rounded">
                   </template>
       
                   <template x-if="item.src && item.type === 'video'">
-                      <video :src="item.src" :style="item.styles" class="block border-0 rounded" controls></video>
+                      <video :src="item.src.startsWith('http') ? item.src : '/' + item.src" 
+                             :style="item.styles" class="block border-0 rounded" controls></video>
                   </template>
       
-                  <template x-if="!item.src && item.content">
-                      <span :class="item.type" :style="item.styles" x-html="item.content"></span>
+                  <!-- ✅ Fix: Ensure Other Content is Displayed Properly -->
+                  <template x-if="!item.src && !item.content.startsWith('data:image') && !item.content.startsWith('http')">
+                      <span :class="item.type" :style="item.styles" 
+                            x-html="Array.isArray(item.content) ? item.content.join(' ') : item.content">
+                      </span>
                   </template>
       
                   <template x-if="item.controls">
@@ -51,7 +70,7 @@
                   </template>
               </div>
           </template>
-      </div>
+      </div>      
         
         <a href="/dashboard" class="block mt-6 bg-teal-600 text-white p-4 rounded shadow text-center">← Back to Pages</a>
     </div>

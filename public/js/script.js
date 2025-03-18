@@ -11,6 +11,53 @@ document.querySelectorAll('.element').forEach(el => {
 });
 
 builderArea.addEventListener('dragover', (e) => e.preventDefault());
+function createGrid() {
+    const cols = parseInt(prompt("Enter number of columns:", "3"), 10);
+    if (isNaN(cols) || cols < 1 || cols > 12) return;
+
+    let total = 0;
+    const colSizes = [];
+    const gridContent = [];
+
+    for (let i = 0; i < cols; i++) {
+        let size;
+        do {
+            size = parseInt(prompt(`Enter size for column ${i + 1} (remaining ${12 - total}):`, "4"), 10);
+        } while (isNaN(size) || size < 1 || size > 12 - total);
+        colSizes.push(size);
+        total += size;
+    }
+
+    if (total !== 12) {
+        alert("Total column size must be exactly 12. Try again.");
+        return;
+    }
+
+    const newElement = document.createElement("div");
+    newElement.className = "grid grid-cols-12 gap-2 w-full";
+    newElement.dataset.type = "grid";
+
+    colSizes.forEach((size, index) => {
+        const colElement = document.createElement("div");
+        colElement.className = `col-span-${size} p-4 bg-gray-200 border`;
+        colElement.contentEditable = true;
+        colElement.textContent = `Column ${index + 1}`;
+        colElement.dataset.type = `col-span-${size}`;
+
+        newElement.appendChild(colElement);
+
+        gridContent.push({
+            type: `col-span-${size}`,
+            styles: "p-4 bg-gray-200",
+            content: [`Column ${index + 1}`]
+        });
+    });
+
+    newElement.dataset.content = JSON.stringify(gridContent); // Store structured content
+    newElement.addEventListener("click", () => selectElement(newElement));
+    builderArea.appendChild(newElement);
+}
+
 
 builderArea.addEventListener('drop', async (e) => {
     e.preventDefault();
@@ -18,40 +65,8 @@ builderArea.addEventListener('drop', async (e) => {
     const type = e.dataTransfer.getData('type');
     let newElement;
 
-    if (type === 'grid') {
-        const cols = parseInt(prompt('Enter number of columns:', '3'), 10);
-        if (isNaN(cols) || cols < 1 || cols > 12) return;
-
-        let total = 0;
-        const colSizes = [];
-
-        for (let i = 0; i < cols; i++) {
-            let size;
-            do {
-                size = parseInt(prompt(`Enter size for column ${i + 1} (remaining ${12 - total}):`, '4'), 10);
-            } while (isNaN(size) || size < 1 || size > 12 - total);
-            colSizes.push(size);
-            total += size;
-        }
-
-        if (total !== 12) {
-            alert('Total column size must be exactly 12. Try again.');
-            return;
-        }
-
-        newElement = document.createElement('div');
-        newElement.className = 'grid grid-cols-12 gap-2 w-full';
-        
-        colSizes.forEach(size => {
-            const cell = document.createElement('div');
-            cell.className = `col-span-${size} border p-4`;
-            cell.contentEditable = true;
-            newElement.appendChild(cell);
-        });
-
-        newElement.addEventListener('click', () => selectElement(newElement));
-        builderArea.appendChild(newElement);
-        return;
+    if (type === "grid") {
+        createGrid();
     }
 
     else if (type === 'table') {
@@ -328,7 +343,8 @@ document.getElementById('justifyContent').addEventListener('change', (e) => {
 
 saveBtn.addEventListener('click', async () => {
     const elements = [];
-    builderArea.childNodes.forEach(el => {
+
+    const promises = Array.from(builderArea.childNodes).map(async el => {
         if (el.nodeType === 1) {
             let elementData = {
                 type: el.className || el.tagName.toLowerCase(),
@@ -336,23 +352,28 @@ saveBtn.addEventListener('click', async () => {
                 content: el.textContent.trim() || '',
             };
 
-            // Handle different elements
-            if (el.tagName === 'IMG') {
+            if (el.classList.contains("grid-cols-12")) {
+                elementData.content = [];
+                el.childNodes.forEach(col => {
+                    if (col.nodeType === 1 && col.dataset.type) {
+                        elementData.content.push({
+                            type: col.dataset.type,
+                            styles: col.className,
+                            content: [col.textContent.trim()]
+                        });
+                    }
+                });
+            } 
+            else if (el.tagName === 'IMG') {
                 if (el.src.startsWith('blob:')) {
-                    convertToBase64(el.src).then(base64 => {
-                        elementData.src = base64;
-                        elements.push(elementData);
-                    });
+                    elementData.src = await convertToBase64(el.src);
                 } else {
                     elementData.src = el.src;
                 }
             } 
             else if (el.tagName === 'VIDEO') {
                 if (el.src.startsWith('blob:')) {
-                    convertToBase64(el.src).then(base64 => {
-                        elementData.src = base64;
-                        elements.push(elementData);
-                    });
+                    elementData.src = await convertToBase64(el.src);
                 } else {
                     elementData.src = el.src;
                 }
@@ -362,9 +383,12 @@ saveBtn.addEventListener('click', async () => {
                 elementData.items = Array.from(el.querySelectorAll('li')).map(li => li.textContent);
             }
 
-            elements.push(elementData);
+            return elementData;
         }
     });
+
+    const resolvedElements = await Promise.all(promises);
+    const filteredElements = resolvedElements.filter(Boolean);
 
     const name = prompt('Enter a name for your page:');
     if (name) {
@@ -373,7 +397,7 @@ saveBtn.addEventListener('click', async () => {
             const response = await fetch('/save', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'CSRF-Token': csrfToken },
-                body: JSON.stringify({ name, content: elements })
+                body: JSON.stringify({ name, content: filteredElements })
             });
             const result = await response.json();
             alert(result.message);

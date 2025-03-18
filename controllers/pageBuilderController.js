@@ -12,17 +12,26 @@ exports.getPageBuilder = async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
+function saveVideo(base64Video) {
+    const filename = `uploads/${Date.now()}.mp4`;
+    const filePath = path.join(__dirname, `../public/${filename}`);
+    const base64Data = base64Video.replace(/^data:video\/\w+;base64,/, "");
+    
+    fs.writeFileSync(filePath, Buffer.from(base64Data, "base64"));
+
+    return `/${filename}`; // Return shortened URL
+}
 
 exports.savePage = async (req, res) => {
     try {
         let { name, content } = req.body;
 
-        if (typeof content === 'string') {
+        if (typeof content === "string") {
             content = JSON.parse(content);
         }
 
         if (!name || !content) {
-            return res.status(400).json({ message: 'Name and content are required' });
+            return res.status(400).json({ message: "Name and content are required" });
         }
 
         const uploadDir = path.join(__dirname, "../public/uploads");
@@ -30,40 +39,100 @@ exports.savePage = async (req, res) => {
             fs.mkdirSync(uploadDir, { recursive: true });
         }
 
-        content.forEach(item => {
-            if (item.src && typeof item.src === 'string' && (item.src.startsWith("data:image") || item.src.startsWith("blob:"))) {
+        let formattedContent = content.map(item => {
+            if (typeof item === "string") {
+                return { type: "text", content: item };
+            }
+
+            if (item.type === "grid grid-cols-12 gap-2 w-full") {
+                if (typeof item.content === "string") {
+                    try {
+                        item.content = JSON.parse(item.content);
+                    } catch (err) {
+                        console.error("Invalid grid format:", err);
+                        item.content = [];
+                    }
+                }
+                item.content = Array.isArray(item.content) ? item.content.map(col => ({
+                    type: col.type,
+                    styles: col.styles || "",
+                    content: col.content || []
+                })) : [];
+            }
+
+            // Convert and shorten Image URLs
+            if (item.type === "image" && item.src && typeof item.src === "string" && item.src.startsWith("data:image")) {
                 const filename = `uploads/${Date.now()}.jpg`;
                 const filePath = path.join(__dirname, `../public/${filename}`);
-
                 const base64Data = item.src.replace(/^data:image\/\w+;base64,/, "");
                 fs.writeFileSync(filePath, Buffer.from(base64Data, "base64"));
-
                 item.src = `/${filename}`;
             }
+
+            // ✅ Convert and Shorten Video URLs
+            if (item.type === "video" && item.src && typeof item.src === "string" && item.src.startsWith("data:video")) {
+                const fileExt = item.src.match(/^data:video\/(\w+);base64,/)[1] || "mp4";
+                const shortFileName = `${crypto.randomUUID()}.${fileExt}`; // Generate unique file name
+                const filePath = path.join(__dirname, `../public/uploads/${shortFileName}`);
+                const base64Data = item.src.replace(/^data:video\/\w+;base64,/, "");
+                fs.writeFileSync(filePath, Buffer.from(base64Data, "base64"));
+                item.src = `/uploads/${shortFileName}`; // Store only the short URL
+            }
+
+            return {
+                type: item.type,
+                styles: item.styles || "",
+                content: item.content || item.src || ""
+            };
         });
 
-        // Fix Grid Structure: Ensure grid content is stored properly
-        let formattedContent = content.map(item => {
-            if (item.type.startsWith("grid grid-cols-") && Array.isArray(item.content)) {
+        await Page.savePage(name, formattedContent);
+
+        res.status(200).json({ message: "Page saved successfully" });
+    } catch (err) {
+        console.error("Error saving page:", err);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+exports.viewPage = async (req, res) => {
+    try {
+        const pageId = req.params.id;
+        const [rows] = await db.execute('SELECT * FROM pages WHERE id = ?', [pageId]);
+
+        if (rows.length === 0) {
+            return res.status(404).send('Page not found');
+        }
+
+        const page = rows[0];
+
+        if (typeof page.content === "string") {
+            page.content = JSON.parse(page.content);
+        }
+
+        // Ensure grids are properly formatted for display
+        page.content = page.content.map(item => {
+            if (item.type.startsWith("grid grid-cols-12") && Array.isArray(item.content)) {
                 return {
-                    type: item.type,
-                    styles: item.styles,
-                    content: item.content.map((colContent, index) => ({
-                        type: `col-span-${colContent.size}`,  // Keep col-span size
-                        styles: colContent.styles || "",
-                        content: colContent.content
-                    }))
+                    ...item,
+                    content: item.content.map(colContent => {
+                        if (typeof colContent === 'object' && colContent.type) {
+                            return {
+                                ...colContent,
+                                type: `col-span-${parseInt(colContent.type.replace("col-span-", ""), 10)}`
+                            };
+                        }
+                        return colContent;
+                    })
                 };
             }
             return item;
         });
 
-        await Page.savePage(name, formattedContent);
-
-        res.status(200).json({ message: 'Page saved successfully' });
-    } catch (err) {
-        console.error('Error saving page:', err);
-        res.status(500).json({ message: 'Internal Server Error' });
+        res.render('page', { page, user: req.session.user });
+    } catch (error) {
+        console.error('Error fetching page:', error);
+        res.status(500).send('Server error');
     }
 };
 
@@ -108,27 +177,6 @@ exports.listPages = async (req, res) => {
     } catch (err) {
         console.error('Error fetching pages:', err);
         res.status(500).json({ message: 'Internal Server Error' });
-    }
-};
-
-exports.viewPage = async (req, res) => {
-    try {
-        const pageId = req.params.id;
-        const [rows] = await db.execute('SELECT * FROM pages WHERE id = ?', [pageId]);
-
-        if (rows.length === 0) {
-            return res.status(404).send('Page not found');
-        }
-
-        const page = rows[0];
-        if (typeof page.content === "string") {
-            page.content = JSON.parse(page.content);
-        }
-
-        res.render('page', { page, user: req.session.user });
-    } catch (error) {
-        console.error('Error fetching page:', error);
-        res.status(500).send('Server error');
     }
 };
 
