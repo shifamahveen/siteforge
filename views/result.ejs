@@ -23,9 +23,9 @@
     </div>
   </nav>
 
-<div class="max-w-screen-xl p-4 sm:px-16 mx-auto mt-10 mb-20">
+  <div class="max-w-screen-xl p-4 sm:px-16 mx-auto mt-10 mb-20">
     <h1 class="text-2xl font-semibold my-4">Generated Web Pages</h1>
-    
+
     <div class="bg-white p-4 shadow-md rounded">
         <p class="text-sm text-gray-700 italic p-4">Click on the tab names to get the generated page!</p>
         <div class="flex border-b">
@@ -33,7 +33,7 @@
                 <button class="tab-button px-4 py-2 focus:outline-none" data-index="<%= index %>"><%= page %></button>
             <% }); %>
         </div>
-        
+
         <% codes.forEach((code, index) => { %>
             <div class="tab-content p-4 hidden" data-index="<%= index %>">
                 <h2 class="font-semibold my-2"><%= pages[index] %> Page Code:</h2>
@@ -51,11 +51,34 @@
     <a href="/ai/page" class="mt-4 p-3 bg-blue-500 text-white rounded block w-full my-4 text-center">Generate Another</a>
 </div>
 
+
+
+
 <footer class="bg-blue-900 p-4 shadow-md text-center text-white fixed bottom-0 w-full mt-28">
     &#169; SiteForge
 </footer>
 
 <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const tabs = document.querySelectorAll(".tab-button");
+        const contents = document.querySelectorAll(".tab-content");
+
+        tabs.forEach((tab, index) => {
+            tab.addEventListener("click", () => {
+                contents.forEach(content => content.classList.add("hidden"));
+                tabs.forEach(t => t.classList.remove("border-b-2", "border-blue-500"));
+
+                contents[index].classList.remove("hidden");
+                tab.classList.add("border-b-2", "border-blue-500");
+            });
+        });
+
+        if (tabs.length > 0) {
+            tabs[0].click();
+        }
+    });
+</script>
+<!-- <script>
     document.querySelectorAll('.tab-button').forEach(button => {
         button.addEventListener('click', () => {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
@@ -73,6 +96,6 @@
             });
         });
     });
-</script>
+</script> -->
 </body>
 </html>
